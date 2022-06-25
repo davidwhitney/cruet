@@ -1,5 +1,5 @@
 {
-  "exclude": ["./*.config.js", "./*.config.ts", "node_modules/*", "tsconfig.json", "./dist/*", "./sample-app/*" ],
+  "exclude": ["./*.config.js", "./*.config.ts", "node_modules/*", "tsconfig.json", "./dist/*" ],
   
   "compilerOptions": {
     "target": "ES6",
