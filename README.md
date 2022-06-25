@@ -2,4 +2,14 @@
 
 A minimalist TypeScript Depenedency Injection Container.
 
-WIP
+Requires the following flags in tsconfig.json:
+
+```json
+{
+    "compilerOptions": {
+        ...
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    }
+}
+```
