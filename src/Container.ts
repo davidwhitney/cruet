@@ -1,18 +1,23 @@
-import type { Constructor, FactoryFunction, IRegistrationModule, Registration } from "./types.js";
-
+import type * as Types from "./Types.d.js";
 export const typeConstructionRequirements  = new Map<string, any[]>();
 
 export class Container {
-    public registrations = new Map<string, Registration>();
+    public registrations = new Map<string, Types.IRegistration>();
 
     constructor() {
-        this.register("Container", this);
-        this.register("container", this);
+        this.registrations.set("Container",  { using: () => (this) });
+        this.registrations.set("container",  { using: () => (this) });
     }
 
-    public register(key: string | Constructor, value?: any | FactoryFunction) {
+    public register(constructor: Types.Constructor): Types.IRegistration;
+    public register(key: string | Types.Constructor, value: object): Types.IRegistration;
+    public register(key: string | Types.Constructor, registration: Types.IRegistration): Types.IRegistration;
+    public register(key: string | Types.Constructor, factoryFunction: Types.FactoryFunction): Types.IRegistration;
+
+    public register(key: string | Types.Constructor, value?: Types.ValidRegistrationValue): Types.IRegistration {
         const ctorProvided = typeof key !== "string";
         const keyProvided = typeof key === "string";
+        const registrationKey = ctorProvided ? (key as Types.Constructor).name : (key as string);
 
         if (ctorProvided && !value) {
             value = { usingConstructor: key };
@@ -20,27 +25,32 @@ export class Container {
 
         if (keyProvided && !value) {
             value = { 
-                using: () => { throw new Error(`Registration found for '${key}' but no value was provided`); } 
+                using: keyNotRecognisedErrorFunction(key)
             };
         }
 
-        const registrationKey = ctorProvided ? (key as Constructor).name : (key as string);
-        const valueOrFactoryProvided = !value.usingConstructor && !value.using;
+        if (!isRegistration(value)) {
+            const valueSnapshot = value;
+            value = typeof valueSnapshot === "function" 
+                ? { using: valueSnapshot } 
+                : { using: () => (valueSnapshot) };
+        }
 
-        if (valueOrFactoryProvided) {
-            value = { using: value };
+        if (!isRegistration(value)) {
+            throw new Error("Invalid registration value provided - please provide one of: a constructor, a value, a callable function.", value);
         }
 
         this.registrations.set(registrationKey, value);
+        return value;
     }
 
-    public addModule(module: IRegistrationModule) {
+    public addModule(module: Types.IRegistrationModule) {
         module.registerComponents(this);
     }
 
-    public get<T = any>(key: Constructor | string): T {
+    public get<T = any>(key: Types.Constructor | string): T {
         const ctorProvided = typeof key !== "string";
-        const registeredKey = ctorProvided ? (key as Constructor).name : (key as string);
+        const registeredKey = ctorProvided ? (key as Types.Constructor).name : (key as string);
         return this.getByKey(registeredKey);
     }
 
@@ -51,25 +61,19 @@ export class Container {
 
         const registration = this.registrations.get(key);
 
-        if (registration.using && typeof registration.using === "function") {
-            return registration.using(this) as T;
+        if (isUsingRegistration(registration)) {            
+            return registration.using(this); 
         }
 
-        if (registration.using) {
-            return registration.using as T;
-        }
+        const metadata = this.getConstructionRequirements(key);
+        const args = metadata.map(({ registrationName }) => this.getByKey(registrationName));
+        return new registration.usingConstructor(...args);
+    }
 
+    private getConstructionRequirements(key: string) {
         const metadata = typeConstructionRequirements.get(key) || [];
         metadata.sort((a, b) => a.paramIndex - b.paramIndex);
-
-        const args = [];
-
-        for (const metadataItem of metadata) {
-            const value = this.getByKey(metadataItem.registrationName);
-            args.push(value);
-        }
-
-        return new registration.usingConstructor(...args);
+        return metadata;
     }
 }
 
@@ -84,3 +88,13 @@ export function Inject(registrationName: any) {
         typeConstructionRequirements.set(target.name, metadata);
     }
 }
+
+function isRegistration(value: Types.ValidRegistrationValue): value is Types.IRegistration {
+    return ("usingConstructor" in value || "using" in value) ? true : false;
+}
+
+function isUsingRegistration(value: Types.IRegistration): value is Types.UsingRegistration {
+    return ("using" in value) ? true : false;
+}
+
+const keyNotRecognisedErrorFunction = (key: string) => () => { throw new Error(`Registration found for '${key}' but no value was provided`); };

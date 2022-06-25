@@ -2,92 +2,101 @@ import { Container, Inject } from "./Container";
 
 describe("Container", () => {
 
-    it("should be able to resolve itself", () => {
-        const container = new Container();
-        
-        const instances = [];
-        instances.push(container.get<Container>(Container));
-        instances.push(container.get(Container));
-        instances.push(container.get("Container"));
-        instances.push(container.get("container"));
-        
-        for (const instance of instances) {
-            expect(instance).toBeInstanceOf(Container);
-            expect(instance).toBe(container);
-        }
+    let container: Container;
+    beforeEach(() => {
+        container = new Container();
     });
 
-    it("should be able to get a class", () => {
-        const container = new Container();
-        container.register(TestClass);
-                
-        const result = container.get<TestClass>(TestClass);
-        
-        expect(result).toBeInstanceOf(TestClass);
-        expect(result.foo).toBe("bar");
+    describe("get", () => {
+        it("should be able to get itself", () => {
+            const instances = [];
+            instances.push(container.get<Container>(Container));
+            instances.push(container.get(Container));
+            instances.push(container.get("Container"));
+            instances.push(container.get("container"));
+            
+            for (const instance of instances) {
+                expect(instance).toBeInstanceOf(Container);
+                expect(instance).toBe(container);
+            }
+        });
+
+        it("should be able to get a class", () => {
+            container.register(TestClass);
+            const result = container.get<TestClass>(TestClass);
+            
+            expect(result).toBeInstanceOf(TestClass);
+            expect(result.foo).toBe("bar");
+        });
+
+        it("should be able to get a class with a dependency", () => {
+            container.register(TestClass);
+            container.register(TestClassWithDep);
+            container.register(SomeDep);
+                    
+            const result = container.get<TestClassWithDep>(TestClassWithDep);
+            
+            expect(result).toBeInstanceOf(TestClassWithDep);
+            expect(result.foo.foo).toBe("bar");
+        });
+
+        it("should be able to get a class with a factory dependency", () => {
+            container.register(SomeDepWhichNeedsAFactory, { using: () => new SomeDepWhichNeedsAFactory("abc") });
+                    
+            const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
+            
+            expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
+            expect(result.foo).toBe("abc");
+        });
     });
 
-    it("should be able to get a class with a dependency", () => {
-        const container = new Container();
-        container.register(TestClass);
-        container.register(TestClassWithDep);
-        container.register(SomeDep);
-                
-        const result = container.get<TestClassWithDep>(TestClassWithDep);
-        
-        expect(result).toBeInstanceOf(TestClassWithDep);
-        expect(result.foo.foo).toBe("bar");
+    describe("register", () => {
+
+        it("should be able to register a class", () => {
+            container.register(TestClass);
+
+            expect(container.registrations.has(TestClass.name)).toBe(true);
+            expect(container.get(TestClass)).toBeInstanceOf(TestClass);
+        });
+
+        it("should support providing registrations", () => {
+            container.register(SomeDepWhichNeedsAFactory, { using: () => new SomeDepWhichNeedsAFactory("abcd") });
+                    
+            const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
+            
+            expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
+            expect(result.foo).toBe("abcd");
+        });
+
+        it("should support providing values", () => {
+            container.register(SomeDepWhichNeedsAFactory, new SomeDepWhichNeedsAFactory("abcdj"));
+                    
+            const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
+            
+            expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
+            expect(result.foo).toBe("abcdj");
+        });
+
+        it("should support providing factory functions", () => {
+            container.register(SomeDepWhichNeedsAFactory, () => new SomeDepWhichNeedsAFactory("abcde"));
+                    
+            const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
+            
+            expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
+            expect(result.foo).toBe("abcde");
+        });
+
+        it("should error when key provided without value", () => {
+            container.register("foo", undefined);
+                    
+            expect(() => {
+                container.get("foo");
+            }).toThrow("Registration found for 'foo' but no value was provided");
+        });
     });
 
-    it("should be able to get a class with a factory dependency", () => {
-        const container = new Container();
-        container.register(SomeDepWhichNeedsAFactory, { using: () => new SomeDepWhichNeedsAFactory("abc") });
-                
-        const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
-        
-        expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
-        expect(result.foo).toBe("abc");
-    });
+ });
 
-    it("should support providing registrations", () => {
-        const container = new Container();
-        container.register(SomeDepWhichNeedsAFactory, { using: () => new SomeDepWhichNeedsAFactory("abcd") });
-                
-        const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
-        
-        expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
-        expect(result.foo).toBe("abcd");
-    });
-
-    it("should support providing values", () => {
-        const container = new Container();
-        container.register(SomeDepWhichNeedsAFactory, new SomeDepWhichNeedsAFactory("abcdj"));
-                
-        const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
-        
-        expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
-        expect(result.foo).toBe("abcdj");
-    });
-
-    it("should support providing factory functions", () => {
-        const container = new Container();
-        container.register(SomeDepWhichNeedsAFactory, () => new SomeDepWhichNeedsAFactory("abcde"));
-                
-        const result = container.get<SomeDepWhichNeedsAFactory>(SomeDepWhichNeedsAFactory);
-        
-        expect(result).toBeInstanceOf(SomeDepWhichNeedsAFactory);
-        expect(result.foo).toBe("abcde");
-    });
-
-    it("should error when key provided without value", () => {
-        const container = new Container();
-        container.register("foo");
-                
-        expect(() => {
-            container.get("foo");
-        }).toThrow("Registration found for 'foo' but no value was provided");
-    });
-});
 
 
 class TestClass {
