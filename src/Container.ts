@@ -1,4 +1,4 @@
-import type * as Types from "./Types.d.js";
+import type * as Types from "./types.js";
 export const typeConstructionRequirements  = new Map<string, any[]>();
 
 export class Container {
