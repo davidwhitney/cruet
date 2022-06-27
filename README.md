@@ -1,6 +1,8 @@
-# Cruet
+# cruet
 
-A minimalist TypeScript Depenedency Injection Container.
+A **minimalist TypeScript Depenedency Injection Container** written as a ES6 Module.
+
+Why cruet? Well, most importantly, it **works anywhere modern JavaScript runs**, is **built in TypeScript** and works in scenarios where other containers fail (like ts-syringe and npm workspaces ;)).
 
 ## Contents
 
@@ -8,12 +10,13 @@ A minimalist TypeScript Depenedency Injection Container.
 
 <!-- code_chunk_output -->
 
-- [Cruet](#cruet)
+- [cruet](#cruet)
   - [Contents](#contents)
   - [Installation](#installation)
   - [Basic Usage](#basic-usage)
   - [Lifecycles](#lifecycles)
   - [Dependency Scopes](#dependency-scopes)
+  - [Dependency Modules](#dependency-modules)
 
 <!-- /code_chunk_output -->
 
@@ -127,3 +130,7 @@ This overrides the global default of the container.
 ## Dependency Scopes
 
 WIP.
+
+## Dependency Modules
+
+Docs WIP.

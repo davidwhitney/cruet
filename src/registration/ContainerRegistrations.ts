@@ -34,7 +34,10 @@ export class ContainerRegistrations {
         };
 
         const registrationOptions = this.registrations.get(key);
-        const wherePredicatesMatch = registrationOptions.filter(x => (!x.activationFilter) || (x.activationFilter && x.activationFilter()));
+
+        const hasNoConstraint = (x: RegistrationConfiguration) => (!x.activationFilter);
+        const constraintMatches = (x: RegistrationConfiguration) => (x.activationFilter(activationContext));
+        const wherePredicatesMatch = registrationOptions.filter(x => hasNoConstraint(x) || constraintMatches(x));
 
         if (wherePredicatesMatch.length === 0) {
             throw new Error(`Failed to activate type: '${key}' while creating '${activationContext.requestedKey}'. Could not find a registration that match registration conditions.`);

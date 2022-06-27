@@ -5,7 +5,7 @@ import type * as Types from "../types";
 export class RegistrationConfiguration {
     public value: Types.IRegistration;
     public lifecycle: Types.ValidActivationLifecycle;
-    public activationFilter: () => boolean;
+    public activationFilter: (activationContext: Types.IActivationContext) => boolean;
 
     constructor(value: Types.IRegistration, lifecycle: Types.ValidActivationLifecycle = null) {
         this.value = value;
@@ -22,7 +22,7 @@ export class RegistrationConfiguration {
         return this;
     }
 
-    public when(condition: () => boolean) {
+    public when(condition: (activationContext: Types.IActivationContext) => boolean) {
         this.activationFilter = condition;
     }
 }
