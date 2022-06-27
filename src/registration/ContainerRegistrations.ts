@@ -30,23 +30,43 @@ export class ContainerRegistrations {
     public get(key: string, activationContext: Types.IActivationContext = null): RegistrationConfiguration {
         activationContext = activationContext || {
             requestedKey: key,
-            activatedItems: new Map<string, any>()
+            scope: null
         };
 
         const registrationOptions = this.registrations.get(key);
 
-        const hasNoConstraint = (x: RegistrationConfiguration) => (!x.activationFilter);
-        const constraintMatches = (x: RegistrationConfiguration) => (x.activationFilter(activationContext));
-        const wherePredicatesMatch = registrationOptions.filter(x => hasNoConstraint(x) || constraintMatches(x));
+        const hasConstraint = (x: RegistrationConfiguration) => (x.activationFilters.length > 0);
+        const constraintMatches = (x: RegistrationConfiguration) => (x.activationFilters.every(filter => {
+            return filter(activationContext);
+        }));
 
-        if (wherePredicatesMatch.length === 0) {
+        const valid = registrationOptions.filter(x => !hasConstraint(x) || (hasConstraint(x) && constraintMatches(x)));
+        
+        if (valid.length === 0) {
             throw new Error(`Failed to activate type: '${key}' while creating '${activationContext.requestedKey}'. Could not find a registration that match registration conditions.`);
         }
 
-        if (wherePredicatesMatch.length > 1) {
+        if (valid.length === 1) {
+            return valid[0];
+        }
+
+        const matchesWithConstraints = valid.filter(x => hasConstraint(x));
+        const orderedMatchesWithConstraints = matchesWithConstraints.sort((a, b) => {
+            return a.activationFilters.length - b.activationFilters.length;
+        });
+
+        const allMatchesWithConstraintsHaveSameNumberOfFilters = orderedMatchesWithConstraints.every((x) => {
+            return x.activationFilters.length === orderedMatchesWithConstraints[0].activationFilters.length;
+        }) && orderedMatchesWithConstraints.length > 1;
+
+        if (orderedMatchesWithConstraints.length > 0 && !allMatchesWithConstraintsHaveSameNumberOfFilters) {
+            return orderedMatchesWithConstraints[orderedMatchesWithConstraints.length - 1];
+        }
+
+        if (valid.length > 1) {
             throw new Error(`Failed to activate type: '${key}' while creating '${activationContext.requestedKey}'. Found multiple registrations that match registration conditions.`);
         }
 
-        return wherePredicatesMatch[0];
+        return valid[0];
     }
 }

@@ -28,5 +28,5 @@ export interface IActivationStrategy {
 
 export interface IActivationContext {
     requestedKey: string;
-    activatedItems: Map<string, any>;
+    scope: string;
 }

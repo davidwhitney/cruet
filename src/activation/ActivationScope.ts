@@ -2,6 +2,7 @@ import * as Types from "../types";
 import { Container } from "../Container";
 import { TransientActivationStrategy } from "./TransientActivationStrategy";
 import { SingletonActivationStrategy } from "./SingletonActivationStrategy";
+import { typeConstructionRequirements } from "../Inject";
 
 export class ActivationScope {
     public name: string;
@@ -23,14 +24,25 @@ export class ActivationScope {
     }
 
     public activate(key: string, activationContext: Types.IActivationContext) {
+        const activationPath = this.getActivationReqs(key);
+        console.debug(`Activating ${key}`, activationPath);
+
         const registrationConfiguration = this.parent.registrations.get(key, activationContext);
-        const lifecycle = registrationConfiguration.lifecycle || this.defaultLifecycle;
-
-        
-
+        const lifecycle = registrationConfiguration.lifecycle || this.defaultLifecycle;  
         const selectedActivationStrategy = this.activationStrategies.get(lifecycle);
-        const instance = selectedActivationStrategy.activate(key, activationContext);
-
-        return instance;
+    
+        return selectedActivationStrategy.activate(key, activationContext);
     }
+
+    private getActivationReqs(key: string, activationPath: ActivationPath = null): ActivationPath {
+        activationPath = activationPath || { key, dependencies: [] };
+        const metadata = typeConstructionRequirements.requirementsFor(key);
+        activationPath.dependencies = metadata.map(({ registrationName }) => this.getActivationReqs(registrationName));
+        return activationPath;
+    }
+}
+
+interface ActivationPath {
+    key: string;
+    dependencies: ActivationPath[];
 }

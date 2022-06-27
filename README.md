@@ -6,17 +6,20 @@ Why cruet? Well, most importantly, it **works anywhere modern JavaScript runs**,
 
 ## Contents
 
-<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+<!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
 
-- [cruet](#cruet)
-  - [Contents](#contents)
-  - [Installation](#installation)
-  - [Basic Usage](#basic-usage)
-  - [Lifecycles](#lifecycles)
-  - [Dependency Scopes](#dependency-scopes)
-  - [Dependency Modules](#dependency-modules)
+- [Contents](#contents)
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+- [Lifecycles](#lifecycles)
+- [Conditional Injection](#conditional-injection)
+  - [whenInjectedInto](#wheninjectedinto)
+  - [inScope](#inscope)
+  - [when](#when)
+- [Registration Modules](#registration-modules)
+- [Credits](#credits)
 
 <!-- /code_chunk_output -->
 
@@ -127,10 +130,75 @@ container.register(TestClass).asTransient();
 
 This overrides the global default of the container.
 
-## Dependency Scopes
+**Beware** if you injects a transient object into a singleton, the singleton instance will be cached at runtime including any of it's created dependencies, regardless of how they were configured. The root object you request from the container will ultimately control the lifecycle of it's entire heirarchy downwards.
 
-WIP.
+Transient objects injected into objects marked as singletons will always become singletons in their respective scopes.
 
-## Dependency Modules
+## Conditional Injection
 
-Docs WIP.
+You can add dependency filters to your registrations. These filters can be combined and chained to more tightly control dependency creation.
+
+### whenInjectedInto
+
+whenInjectedInto allows you to control which implementation gets injected based on the dependency root.
+
+```ts
+container.register(WithDependencyOne);
+container.register(WithDependencyTwo);
+container.register(SomeDep, () => (new SomeDep("abc"))).whenInjectedInto(WithDependencyOne);
+container.register(SomeDep, () => (new SomeDep("def"))).whenInjectedInto(WithDependencyTwo);
+
+const result1 = container.get<WithDependencyOne>(WithDependencyOne); // SomeDep("abc")
+const result2 = container.get<WithDependencyTwo>(WithDependencyTwo); // SomeDep("def")
+```
+
+### inScope
+
+inScope allows you to control which implementation gets injected based on a named dependency scope.
+
+```ts
+container.register(SomeDep).asSingleton(); // default scope
+container.register(SomeDep).asTransient().inScope("special-scope");
+
+const result1 = container.get<SomeDep>(SomeDep);
+const result2 = container.get<SomeDep>(SomeDep);
+const result3 = container.get<SomeDep>(SomeDep, "special-scope");
+const result4 = container.get<SomeDep>(SomeDep, "special-scope");
+
+expect(result1 === result2).toBe(true);  // true because they are registered as singletons
+expect(result2 === result3).toBe(false); // false because they're requested from different scopes 
+expect(result3 === result4).toBe(false); // false because the dependency in this scope is marked as transient
+```
+
+### when
+
+when allows you to control which implementation gets injected based on a condition.
+
+```ts
+container.register(SomeDep).asTransient().when(() => true); // Put whatever you like that returns a bool here.
+```
+
+## Registration Modules
+
+Registration modules allow you to capture your registrations in a class - this is useful when you want to ship some registrations in a package with some dependencies in a shared project.
+
+You can define a Registration Module like this:
+
+```ts
+class TestModule implements IRegistrationModule {
+    public registerComponents(container: Container): void {
+        container.register(TestClass);
+    }
+}
+```
+
+Then register it with your container:
+
+```ts
+container.addModule(new TestModule());
+const result = container.get<TestClass>(TestClass);
+```
+
+## Credits
+
+cruet is &copy; David Whitney 2022.

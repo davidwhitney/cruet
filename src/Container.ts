@@ -10,6 +10,7 @@ export class Container {
     public configuration: ContainerConfiguration;
 
     private defaultScope: ActivationScope;
+    private additionalScopes: Map<string, ActivationScope>;
 
     constructor(configuration: ContainerConfiguration = null) {
         this.configuration = configuration || {
@@ -17,6 +18,7 @@ export class Container {
         };
         
         this.defaultScope = new ActivationScope(this, this.configuration.defaultActivationLifecycle);
+        this.additionalScopes = new Map<string, ActivationScope>();
         
         const selfRegistration = new RegistrationConfiguration({ using: () => (this) }).asSingleton();
         
@@ -66,25 +68,34 @@ export class Container {
         module.registerComponents(this);
     }
 
-    public get<T = any>(key: Types.Constructor | string): T {
+    public get<T = any>(key: string | Types.Constructor, scope: string = null): T {
         const ctorProvided = typeof key !== "string";
         const registeredKey = ctorProvided ? (key as Types.Constructor).name : (key as string);
-        return this.getByKey(registeredKey);
+        return this.getByKey(registeredKey, scope);
     }
 
-    public getByKey<T>(key: string): T {
+    public getByKey<T>(key: string, scope: string = null): T {
         const activationContext = {
             requestedKey: key,
-            activatedItems: new Map<string, any>()
+            activatedItems: new Map<string, any>(),
+            scope: scope
         };
 
-        const registrationConfiguration = this.registrations.get(key, activationContext);
-        const activationScope = this.getActivationScope(registrationConfiguration);
+        const activationScope = this.getActivationScope(activationContext);
         return activationScope.activate(key, activationContext);
     }
 
-    private getActivationScope(registration: RegistrationConfiguration): ActivationScope {
-        return this.defaultScope;
+    private getActivationScope(activationContext: Types.IActivationContext): ActivationScope {
+        if(!activationContext.scope) {
+            return this.defaultScope;
+        }
+
+        if (!this.additionalScopes.has(activationContext.scope)) {
+            const scope = new ActivationScope(this, this.configuration.defaultActivationLifecycle, activationContext.scope);
+            this.additionalScopes.set(activationContext.scope, scope);
+        }
+
+        return this.additionalScopes.get(activationContext.scope);
     }
 }
 

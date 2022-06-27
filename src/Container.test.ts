@@ -1,5 +1,6 @@
 import { Container } from "./Container";
 import { Inject } from "./Inject";
+import { IRegistrationModule } from "./types";
 
 describe("Container", () => {
 
@@ -100,17 +101,17 @@ describe("Container", () => {
         it("default activation lifecycle is respected when set to singleton", () => {
             const container = new Container({
                 defaultActivationLifecycle: "singleton"
-            })
+            });
 
             container.register(TestClass);
-
+            
             expect(container.registrations.get(TestClass.name).lifecycle).toBe("singleton");
         });
         
         it("default activation lifecycle is respected when set to transient", () => {
             const container = new Container({
                 defaultActivationLifecycle: "transient"
-            })
+            });
 
             container.register(TestClass);
 
@@ -188,8 +189,77 @@ describe("Container", () => {
                 container.get<TestClassWithDep>(TestClassWithDep);
             }).toThrow(`Failed to activate type: 'SomeDep' while creating 'TestClassWithDep'. Found multiple registrations that match registration conditions.`);
         });
+        
+        it("scoped registration, requested for other scope, throws", () => {
+            container.register(TestClass).inScope("scope-name");
+
+            expect(() => {
+                container.get(TestClass, "other-scope-name");
+            }).toThrow(`Failed to activate type: 'TestClass' while creating 'TestClass'. Could not find a registration that match registration conditions.`);
+       });
+
+        it("scoped registration, requested for correct scope, returns instance", () => {
+            container.register(TestClass).inScope("scope-name");
+            
+            const result = container.get(TestClass, "scope-name");
+
+            expect(result).toBeInstanceOf(TestClass);
+        });
+
+        it("conditional registration, works correctly", () => {
+            container.register(WithDependencyOne);
+            container.register(WithDependencyTwo);
+            container.register(SomeDep, () => (new SomeDep("abc"))).whenInjectedInto(WithDependencyOne);
+            container.register(SomeDep, () => (new SomeDep("def"))).whenInjectedInto(WithDependencyTwo);
+
+            const result1 = container.get<WithDependencyOne>(WithDependencyOne);
+            const result2 = container.get<WithDependencyTwo>(WithDependencyTwo);
+
+            expect(result1.someDep.foo).toBe("abc");
+            expect(result2.someDep.foo).toBe("def");
+        });
+
+        it("conditional registration and named scopes, works correctly", () => {
+            container.register(WithDependencyOne);
+            container.register(WithDependencyTwo);
+            container.register(SomeDep, () => (new SomeDep("abc"))).whenInjectedInto(WithDependencyOne);
+            container.register(SomeDep, () => (new SomeDep("def"))).whenInjectedInto(WithDependencyTwo);
+            container.register(SomeDep, () => (new SomeDep("ghi"))).whenInjectedInto(WithDependencyTwo).inScope("special-scope");
+
+            const result1 = container.get<WithDependencyTwo>(WithDependencyTwo);
+            const result2 = container.get<WithDependencyTwo>(WithDependencyTwo, "special-scope");
+
+            expect(result1.someDep.foo).toBe("def");
+            expect(result2.someDep.foo).toBe("ghi");
+        });
+
+        it("conditional registration and named scopes, respects lifecycle", () => {
+            container.register(SomeDep).asSingleton(); // default scope
+            container.register(SomeDep).asTransient().inScope("special-scope");
+
+            const result1 = container.get<SomeDep>(SomeDep);
+            const result2 = container.get<SomeDep>(SomeDep);
+            const result3 = container.get<SomeDep>(SomeDep, "special-scope");
+            const result4 = container.get<SomeDep>(SomeDep, "special-scope");
+
+            expect(result1 === result2).toBe(true);
+            expect(result2 === result3).toBe(false);
+            expect(result3 === result4).toBe(false);
+        });
+    });
+    
+    it("dependency modules can be registered", () => {
+        container.addModule(new TestModule());
+        const result = container.get<TestClass>(TestClass);
+        expect(result).toBeInstanceOf(TestClass);
     });
  });
+
+class TestModule implements IRegistrationModule {
+    public registerComponents(container: Container): void {
+        container.register(TestClass);
+    }
+}
 
 class TestClass {
     public foo: string;
@@ -221,4 +291,12 @@ class TestClassWithDep {
     constructor(@Inject("SomeDep") someDep: SomeDep) {
         this.foo = someDep;
     }
+}
+
+class WithDependencyOne {
+    constructor(@Inject("SomeDep") public someDep: SomeDep) { }
+}
+
+class WithDependencyTwo {
+    constructor(@Inject("SomeDep") public someDep: SomeDep) { }
 }
