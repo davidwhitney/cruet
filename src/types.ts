@@ -4,14 +4,18 @@ export type Constructor = { new (...args: any[]) };
 export type FactoryFunction = ((current?: Container) => any);
 export type ValidRegistrationValue = IRegistration | object;
 
+export type ValidActivationLifecycle = "transient" | "singleton";
+
 export type IRegistration = ConstructorRegistration | UsingRegistration;
 
 export interface ConstructorRegistration {
-    usingConstructor: Constructor,
+    usingConstructor?: Constructor;
+    lifecycle?: ValidActivationLifecycle;
 }
 
 export interface UsingRegistration {
-    using: FactoryFunction
+    using?: FactoryFunction;
+    lifecycle?: ValidActivationLifecycle;
 }
 
 export interface IRegistrationModule {

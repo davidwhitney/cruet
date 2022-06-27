@@ -1,8 +1,10 @@
-import { IActivationStrategy } from "../types";
+import { IActivationStrategy, ValidActivationLifecycle } from "../types";
 import { typeConstructionRequirements } from "../Inject";
 import { Container, isUsingRegistration } from "../Container";
 
 export class TransientActivationStrategy implements IActivationStrategy {
+    public static get shortName(): ValidActivationLifecycle { return "transient"; }
+
     private parent: Container;
 
     constructor(parent: Container) {
@@ -14,7 +16,8 @@ export class TransientActivationStrategy implements IActivationStrategy {
             throw new Error("No registration found for key: " + key);
         }
 
-        const registration = this.parent.registrations.get(key);
+        const registrationConfiguration = this.parent.registrations.get(key);
+        const registration = registrationConfiguration.value;
 
         if (isUsingRegistration(registration)) {
             return registration.using(this.parent);

@@ -96,9 +96,28 @@ describe("Container", () => {
         });
     });
 
+    describe("singleton activation scope", () => {
+        it("asSingleton forces each get to return same instance", () => {
+            container.register(TestClass).asSingleton();
+
+            const get1 = container.get<TestClass>(TestClass);
+            const get2 = container.get<TestClass>(TestClass);
+
+            expect(get1 === get2).toBe(true);
+        });
+    });
+
+    describe("transient activation scope", () => {
+        it("asSingleton forces each get to return different instance", () => {
+            container.register(TestClass).asTransient();
+
+            const get1 = container.get<TestClass>(TestClass);
+            const get2 = container.get<TestClass>(TestClass);
+
+            expect(get1 === get2).toBe(false);
+        });
+    });
  });
-
-
 
 class TestClass {
     public foo: string;

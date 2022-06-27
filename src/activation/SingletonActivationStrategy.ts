@@ -1,15 +1,15 @@
-import { IActivationStrategy } from "../types";
+import { IActivationStrategy, ValidActivationLifecycle } from "../types";
 import { TransientActivationStrategy } from "./TransientActivationStrategy";
-import { Container } from "../Container";
 
-class SingletonActivationStrategy implements IActivationStrategy {
-    private parent: Container;
+export class SingletonActivationStrategy implements IActivationStrategy {
+    public static get shortName(): ValidActivationLifecycle { return "singleton"; }
+
     private instanceCache: Map<string, any>;
     private transientActivationStrategy: TransientActivationStrategy;
 
-    constructor(parent: Container, transientActivationStrategy: TransientActivationStrategy) {
-        this.parent = parent;
+    constructor(transientActivationStrategy: TransientActivationStrategy) {
         this.transientActivationStrategy = transientActivationStrategy;
+        this.instanceCache = new Map<string, any>();
     }
 
     public activate(key: string) {
