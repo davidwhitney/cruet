@@ -1,10 +1,13 @@
-import type * as Types from "./types.js";
-export const typeConstructionRequirements  = new Map<string, any[]>();
+import { TransientActivationStrategy } from "./activation/TransientActivationStrategy";
+import type * as Types from "./types";
 
 export class Container {
     public registrations = new Map<string, Types.IRegistration>();
+    private defaultActivationStrategy: Types.IActivationStrategy;
 
     constructor() {
+        this.defaultActivationStrategy = new TransientActivationStrategy(this);
+
         this.registrations.set("Container",  { using: () => (this) });
         this.registrations.set("container",  { using: () => (this) });
     }
@@ -59,33 +62,8 @@ export class Container {
             throw new Error("No registration found for key: " + key);
         }
 
-        const registration = this.registrations.get(key);
-
-        if (isUsingRegistration(registration)) {            
-            return registration.using(this); 
-        }
-
-        const metadata = this.getConstructionRequirements(key);
-        const args = metadata.map(({ registrationName }) => this.getByKey(registrationName));
-        return new registration.usingConstructor(...args);
-    }
-
-    private getConstructionRequirements(key: string) {
-        const metadata = typeConstructionRequirements.get(key) || [];
-        metadata.sort((a, b) => a.paramIndex - b.paramIndex);
-        return metadata;
-    }
-}
-
-export function Inject(registrationName: any) {
-    return (target: any, __: string, paramIndex: number) => {
-        if (!typeConstructionRequirements.get(target.name)) {
-            typeConstructionRequirements.set(target.name, []);
-        }
-
-        const metadata = typeConstructionRequirements.get(target.name);
-        metadata.push({ paramIndex, registrationName });        
-        typeConstructionRequirements.set(target.name, metadata);
+        // const registration = this.registrations.get(key);
+        return this.defaultActivationStrategy.activate(key);
     }
 }
 
@@ -93,7 +71,7 @@ function isRegistration(value: Types.ValidRegistrationValue): value is Types.IRe
     return ("usingConstructor" in value || "using" in value) ? true : false;
 }
 
-function isUsingRegistration(value: Types.IRegistration): value is Types.UsingRegistration {
+export function isUsingRegistration(value: Types.IRegistration): value is Types.UsingRegistration {
     return ("using" in value) ? true : false;
 }
 

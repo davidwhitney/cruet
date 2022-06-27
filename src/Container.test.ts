@@ -1,4 +1,5 @@
-import { Container, Inject } from "./Container";
+import { Container } from "./Container";
+import { Inject } from "./Inject";
 
 describe("Container", () => {
 

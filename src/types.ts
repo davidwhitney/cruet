@@ -17,3 +17,7 @@ export interface UsingRegistration {
 export interface IRegistrationModule {
     registerComponents(container: Container): void;
 }
+
+export interface IActivationStrategy {
+    activate(key: string): any;
+}
