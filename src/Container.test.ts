@@ -96,6 +96,28 @@ describe("Container", () => {
         });
     });
 
+    describe("container configuration", () => {
+        it("default activation lifecycle is respected when set to singleton", () => {
+            const container = new Container({
+                defaultActivationLifecycle: "singleton"
+            })
+
+            container.register(TestClass);
+
+            expect(container.registrations.get(TestClass.name).lifecycle).toBe("singleton");
+        });
+        
+        it("default activation lifecycle is respected when set to transient", () => {
+            const container = new Container({
+                defaultActivationLifecycle: "transient"
+            })
+
+            container.register(TestClass);
+
+            expect(container.registrations.get(TestClass.name).lifecycle).toBe("transient");
+        });
+    });
+
     describe("singleton activation scope", () => {
         it("asSingleton forces each get to return same instance", () => {
             container.register(TestClass).asSingleton();

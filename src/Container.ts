@@ -53,7 +53,8 @@ export class Container {
             throw new Error("Invalid registration value provided - please provide one of: a constructor, a value, a callable function.", value);
         }
 
-        const registration = new RegistrationConfiguration(value);
+        const registration = new RegistrationConfiguration(value, this.configuration.defaultActivationLifecycle);
+
         this.registrations.set(registrationKey, registration);
         return registration;
     }
