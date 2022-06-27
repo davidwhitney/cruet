@@ -1,6 +1,6 @@
 # cruet
 
-A **minimalist TypeScript Depenedency Injection Container** written as a ES6 Module.
+A **minimalist TypeScript Dependency Injection Container** written as a ES6 Module.
 
 Why cruet? Well, most importantly, it **works anywhere modern JavaScript runs**, is **built in TypeScript** and works in scenarios where other containers fail (like ts-syringe and npm workspaces ;)).
 
