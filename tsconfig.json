@@ -26,7 +26,6 @@
     "outDir": "./dist",
     "sourceMap": true,
 
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "experimentalDecorators": true
   }
 }

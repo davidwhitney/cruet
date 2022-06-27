@@ -22,10 +22,15 @@ export class ActivationScope {
         this.activationStrategies.set(SingletonActivationStrategy.shortName, singletonActivationStrategy);
     }
 
-    public activate(key: string) {
-        const registrationConfiguration = this.parent.registrations.get(key);
+    public activate(key: string, activationContext: Types.IActivationContext) {
+        const registrationConfiguration = this.parent.registrations.get(key, activationContext);
         const lifecycle = registrationConfiguration.lifecycle || this.defaultLifecycle;
+
+        
+
         const selectedActivationStrategy = this.activationStrategies.get(lifecycle);
-        return selectedActivationStrategy.activate(key);
+        const instance = selectedActivationStrategy.activate(key, activationContext);
+
+        return instance;
     }
 }

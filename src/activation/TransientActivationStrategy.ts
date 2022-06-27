@@ -1,4 +1,4 @@
-import { IActivationStrategy, ValidActivationLifecycle } from "../types";
+import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../types";
 import { typeConstructionRequirements } from "../Inject";
 import { Container, isUsingRegistration } from "../Container";
 
@@ -11,12 +11,12 @@ export class TransientActivationStrategy implements IActivationStrategy {
         this.parent = parent;
     }
 
-    public activate(key: string) {
-        if (!this.parent.registrations.get(key)) {
+    public activate(key: string, activationContext: IActivationContext) {
+        if (!this.parent.registrations.get(key, activationContext)) {
             throw new Error("No registration found for key: " + key);
         }
 
-        const registrationConfiguration = this.parent.registrations.get(key);
+        const registrationConfiguration = this.parent.registrations.get(key, activationContext);
         const registration = registrationConfiguration.value;
 
         if (isUsingRegistration(registration)) {
@@ -24,7 +24,7 @@ export class TransientActivationStrategy implements IActivationStrategy {
         }
 
         const metadata = typeConstructionRequirements.requirementsFor(key);
-        const args = metadata.map(({ registrationName }) => this.activate(registrationName));
+        const args = metadata.map(({ registrationName }) => this.activate(registrationName, activationContext));
         return new registration.usingConstructor(...args);
     }
 }

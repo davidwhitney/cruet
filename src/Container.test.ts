@@ -139,6 +139,56 @@ describe("Container", () => {
             expect(get1 === get2).toBe(false);
         });
     });
+
+    describe("scoped activation is respected", () => {        
+        it("activation predicate not present, works", () => {
+            container.register(TestClassWithDep);
+            container.register(SomeDep, () => (new SomeDep("baz")));
+
+            const result = container.get<TestClassWithDep>(TestClassWithDep);
+
+            expect(result).toBeInstanceOf(TestClassWithDep);
+        });
+
+        it("activation predicate returns no values, exception is thrown", () => {
+            container.register(TestClassWithDep);
+            container.register(SomeDep, () => (new SomeDep("baz"))).when(() => false);
+
+            expect(() => {
+                container.get<TestClassWithDep>(TestClassWithDep);
+            }).toThrow(`Failed to activate type: 'SomeDep' while creating 'TestClassWithDep'. Could not find a registration that match registration conditions.`);
+        });
+        
+        it("activation predicate matches one registration, works", () => {
+            container.register(TestClassWithDep);
+            container.register(SomeDep, () => (new SomeDep("baz"))).when(() => true);
+
+            const result = container.get<TestClassWithDep>(TestClassWithDep);
+
+            expect(result).toBeInstanceOf(TestClassWithDep);
+        });
+
+        it("multiple registrations, one matching activation predicate, works", () => {
+            container.register(TestClassWithDep);
+            container.register(SomeDep, () => (new SomeDep("def"))).when(() => false);
+            container.register(SomeDep, () => (new SomeDep("abc"))).when(() => true);
+
+            const result = container.get<TestClassWithDep>(TestClassWithDep);
+
+            expect(result).toBeInstanceOf(TestClassWithDep);
+            expect(result.foo.foo).toBe("abc");
+        });
+
+        it("multiple registrations, multiple matching activation predicates, throws", () => {
+            container.register(TestClassWithDep);
+            container.register(SomeDep, () => (new SomeDep("abc"))).when(() => true);
+            container.register(SomeDep, () => (new SomeDep("def"))).when(() => true);
+
+            expect(() => {
+                container.get<TestClassWithDep>(TestClassWithDep);
+            }).toThrow(`Failed to activate type: 'SomeDep' while creating 'TestClassWithDep'. Found multiple registrations that match registration conditions.`);
+        });
+    });
  });
 
 class TestClass {
@@ -152,8 +202,8 @@ class TestClass {
 class SomeDep {
     public foo: string;
 
-    constructor() {
-        this.foo = "bar";
+    constructor(foo: string = "bar") {
+        this.foo = foo;
     }
 }
 
@@ -172,4 +222,3 @@ class TestClassWithDep {
         this.foo = someDep;
     }
 }
-

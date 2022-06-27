@@ -1,11 +1,12 @@
 import type * as Types from "./types";
 import { ActivationScope } from "./activation/ActivationScope";
-import { RegistrationConfiguration } from "./Registration";
+import { RegistrationConfiguration } from "./registration/Registration";
 import { TransientActivationStrategy } from "./activation/TransientActivationStrategy";
 import { ContainerConfiguration } from "./ContainerConfiguration";
+import { ContainerRegistrations } from "./registration/ContainerRegistrations";
 
 export class Container {
-    public registrations = new Map<string, RegistrationConfiguration>();
+    public registrations = new ContainerRegistrations();
     public configuration: ContainerConfiguration;
 
     private defaultScope: ActivationScope;
@@ -16,10 +17,12 @@ export class Container {
         };
         
         this.defaultScope = new ActivationScope(this, this.configuration.defaultActivationLifecycle);
-
+        
         const selfRegistration = new RegistrationConfiguration({ using: () => (this) }).asSingleton();
-        this.registrations.set("Container", selfRegistration);
-        this.registrations.set("container", selfRegistration);
+        
+        this.registrations = new ContainerRegistrations();
+        this.registrations.add("Container", selfRegistration);
+        this.registrations.add("container", selfRegistration);
     }
 
     public register(constructor: Types.Constructor): RegistrationConfiguration;
@@ -55,7 +58,7 @@ export class Container {
 
         const registration = new RegistrationConfiguration(value, this.configuration.defaultActivationLifecycle);
 
-        this.registrations.set(registrationKey, registration);
+        this.registrations.add(registrationKey, registration);
         return registration;
     }
 
@@ -70,13 +73,14 @@ export class Container {
     }
 
     public getByKey<T>(key: string): T {
-        if (!this.registrations.get(key)) {
-            throw new Error("No registration found for key: " + key);
-        }
+        const activationContext = {
+            requestedKey: key,
+            activatedItems: new Map<string, any>()
+        };
 
-        const registrationConfiguration = this.registrations.get(key);
+        const registrationConfiguration = this.registrations.get(key, activationContext);
         const activationScope = this.getActivationScope(registrationConfiguration);
-        return activationScope.activate(key);
+        return activationScope.activate(key, activationContext);
     }
 
     private getActivationScope(registration: RegistrationConfiguration): ActivationScope {

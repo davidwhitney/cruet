@@ -23,5 +23,10 @@ export interface IRegistrationModule {
 }
 
 export interface IActivationStrategy {
-    activate(key: string): any;
+    activate(key: string, activationContext: IActivationContext): any;
+}
+
+export interface IActivationContext {
+    requestedKey: string;
+    activatedItems: Map<string, any>;
 }

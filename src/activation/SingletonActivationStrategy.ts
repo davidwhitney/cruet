@@ -1,4 +1,4 @@
-import { IActivationStrategy, ValidActivationLifecycle } from "../types";
+import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../types";
 import { TransientActivationStrategy } from "./TransientActivationStrategy";
 
 export class SingletonActivationStrategy implements IActivationStrategy {
@@ -12,9 +12,9 @@ export class SingletonActivationStrategy implements IActivationStrategy {
         this.instanceCache = new Map<string, any>();
     }
 
-    public activate(key: string) {
+    public activate(key: string, activationContext: IActivationContext) {
         if (!this.instanceCache.has(key)) {
-            const instance = this.transientActivationStrategy.activate(key);
+            const instance = this.transientActivationStrategy.activate(key, activationContext);
             this.instanceCache.set(key, instance);
         }
 
