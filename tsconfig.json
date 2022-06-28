@@ -10,11 +10,11 @@
       "DOM.Iterable",
       "ESNext"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": false,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
