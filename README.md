@@ -4,6 +4,8 @@ A **minimalist TypeScript Dependency Injection Container** written as a ES6 Modu
 
 Why cruet? Well, most importantly, it **works anywhere modern JavaScript runs**, is **built in TypeScript** and works in scenarios where other containers fail (like ts-syringe and npm workspaces ;)).
 
+**Targets Node 16+**.
+
 ## Contents
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=2 depthTo=6 orderedList=false} -->
