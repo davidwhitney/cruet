@@ -8,6 +8,10 @@ export class ContainerRegistrations {
         this.registrations = new Map<string, RegistrationConfiguration[]>();
     }
 
+    public all(): IterableIterator<[string, RegistrationConfiguration[]]> {
+        return this.registrations.entries();
+    }
+
     public has(key: string) {
         if (this.registrations.has(key)) {
             return true;
