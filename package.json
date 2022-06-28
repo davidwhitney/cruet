@@ -1,6 +1,6 @@
 {
   "name": "cruet",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -13,10 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jest": "^27.4.1",
-    "jest": "^27.5.1",
-    "ts-jest": "^27.1.3",
     "typescript": "^4.3.2",
-    "vitest": "^0.14.2"
+    "vitest": "^0.16.0"
   },
   "publishConfig": {
     "access": "public"
@@ -31,5 +29,13 @@
   "bugs": {
     "url": "https://github.com/davidwhitney/cruet/issues"
   },
-  "homepage": "https://github.com/davidwhitney/cruet#readme"
+  "homepage": "https://github.com/davidwhitney/cruet#readme",
+  "wallaby": {    
+    "testFramework": "vitest",
+    "env": {
+      "params": {
+        "runner": "--experimental-vm-modules"
+      }
+    }
+  }
 }
