@@ -50,7 +50,7 @@ You can import cruet as an ES Module:
 import { Container } from "cruet";
 ```
 
-And there's a bundled version of cruet included in the npm package as `dist/bundle.js` - if for some reason ES modules don't work in your environment.
+Type definitions are provided.
 
 ## Basic Usage
 
