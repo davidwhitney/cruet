@@ -1,13 +1,12 @@
 {
   "name": "cruet",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "",
   "main": "dist/bundle.js",
   "types": "dist/index.d.ts",
-  "type": "module",
   "scripts": {
     "test": "vitest run",
-    "build": "tsc && npx esbuild ./src/index.ts --bundle --platform=node --sourcemap --outfile=./dist/bundle.js"
+    "build": "tsc && npx esbuild ./src/index.ts --bundle --platform=node --target=node16 --sourcemap --outfile=./dist/bundle.js"
   },
   "author": "David Whitney",
   "license": "ISC",
