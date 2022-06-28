@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "build": "tsc && npx esbuild ./src/index.ts --bundle --outfile=./dist/bundle.js"
+    "build": "tsc && npx esbuild ./src/index.ts --bundle --platform=node --sourcemap --outfile=./dist/bundle.js"
   },
   "author": "David Whitney",
   "license": "ISC",
