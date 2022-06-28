@@ -1,4 +1,4 @@
-import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../types";
+import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../interfaces";
 import { TransientActivationStrategy } from "./TransientActivationStrategy";
 
 export class SingletonActivationStrategy implements IActivationStrategy {

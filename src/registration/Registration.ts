@@ -1,6 +1,6 @@
 import { SingletonActivationStrategy } from "../activation/SingletonActivationStrategy";
 import { TransientActivationStrategy } from "../activation/TransientActivationStrategy";
-import type * as Types from "../types";
+import type * as Types from "../interfaces";
 
 export class RegistrationConfiguration {
     public value: Types.IRegistration;

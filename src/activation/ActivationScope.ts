@@ -1,4 +1,4 @@
-import * as Types from "../types";
+import * as Types from "../interfaces";
 import { Container } from "../Container";
 import { TransientActivationStrategy } from "./TransientActivationStrategy";
 import { SingletonActivationStrategy } from "./SingletonActivationStrategy";

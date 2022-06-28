@@ -1,4 +1,4 @@
-import * as Types from "./types";
+import * as Types from "./interfaces";
 
 export interface ContainerConfiguration {
     defaultActivationLifecycle?: Types.ValidActivationLifecycle;

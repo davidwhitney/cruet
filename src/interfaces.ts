@@ -30,3 +30,5 @@ export interface IActivationContext {
     requestedKey: string;
     scope: string;
 }
+
+export const init = "";

@@ -1,4 +1,4 @@
-import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../types";
+import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../interfaces";
 import { typeConstructionRequirements } from "../Inject";
 import { Container, isUsingRegistration } from "../Container";
 

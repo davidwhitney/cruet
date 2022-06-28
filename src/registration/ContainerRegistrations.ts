@@ -1,4 +1,4 @@
-import * as Types from "../types";
+import * as Types from "../interfaces";
 import { RegistrationConfiguration } from "./Registration";
 
 export class ContainerRegistrations {

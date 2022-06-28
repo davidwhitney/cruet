@@ -5,3 +5,4 @@ export * from "./registration/Registration";
 export * from "./activation/ActivationScope";
 export * from "./activation/SingletonActivationStrategy";
 export * from "./activation/TransientActivationStrategy";
+export * from "./interfaces";

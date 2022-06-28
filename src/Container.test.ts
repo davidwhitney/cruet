@@ -1,6 +1,6 @@
 import { Container } from "./Container";
 import { Inject } from "./Inject";
-import { IRegistrationModule } from "./types";
+import { IRegistrationModule } from "./interfaces";
 
 describe("Container", () => {
 

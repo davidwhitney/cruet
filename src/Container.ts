@@ -1,4 +1,4 @@
-import type * as Types from "./types";
+import type * as Types from "./interfaces";
 import { ActivationScope } from "./activation/ActivationScope";
 import { RegistrationConfiguration } from "./registration/Registration";
 import { TransientActivationStrategy } from "./activation/TransientActivationStrategy";
