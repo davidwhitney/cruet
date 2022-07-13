@@ -63,6 +63,23 @@ export class Container {
         this.registrations.add(registrationKey, registration);
         return registration;
     }
+    
+    public reregister(constructor: Types.Constructor): RegistrationConfiguration;
+    public reregister(key: string | Types.Constructor, value: object): RegistrationConfiguration;
+    public reregister(key: string | Types.Constructor, registration: Types.IRegistration): RegistrationConfiguration;
+    public reregister(key: string | Types.Constructor, factoryFunction: Types.FactoryFunction): RegistrationConfiguration;
+    
+    public reregister(key: string | Types.Constructor, value?: Types.ValidRegistrationValue): RegistrationConfiguration {
+        this.clearRegistrations(key);
+        return this.register(key, value);
+    }
+
+    public clearRegistrations(key: string | Types.Constructor) {
+        const ctorProvided = typeof key !== "string";
+        const keyProvided = typeof key === "string";
+        const registrationKey = ctorProvided ? (key as Types.Constructor).name : (key as string);
+        this.registrations.clear(registrationKey);
+    }
 
     public addModule(module: Types.IRegistrationModule) {
         module.registerComponents(this);

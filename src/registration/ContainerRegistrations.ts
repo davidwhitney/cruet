@@ -20,6 +20,10 @@ export class ContainerRegistrations {
         return this.registrations.get(key).length > 0;
     }
 
+    public clear(key: string) {
+        this.registrations.delete(key);
+    }
+
     public add(key: string, value: RegistrationConfiguration) {
         if (!this.registrations.has(key)) {
             this.registrations.set(key, []);

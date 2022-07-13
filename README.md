@@ -81,6 +81,12 @@ container.register(SomeDepWhichNeedsAFactory, { using: () => new SomeDepWhichNee
 
 // Register a dependency by key
 container.register("foo", () => "bar");
+
+// Re-Register a depedency (replaces, rather than adds additional registrations)
+container.reregister("foo", () => "baz");
+
+// Clear registrations
+container.clearRegistrations("foo");
 ```
 
 Parameters that exist in constructors must be annotated so that the container understands them.

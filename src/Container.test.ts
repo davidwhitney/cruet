@@ -97,6 +97,24 @@ describe("Container", () => {
         });
     });
 
+    describe("reregister", () => {
+        it("should be able to clear registrations", () => {
+            container.register("foo", () => "bar");
+            container.clearRegistrations("foo");
+
+            expect(() => {
+                container.get("foo");
+            }).toThrow();
+        });
+
+        it("should be able to replace existing registrations", () => {
+            container.register("foo", () => "bar");
+            container.reregister("foo", () => "baz");
+
+            expect(container.get("foo")).toBe("baz");
+        });
+    });
+
     describe("container configuration", () => {
         it("default activation lifecycle is respected when set to singleton", () => {
             const container = new Container({
