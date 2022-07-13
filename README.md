@@ -68,6 +68,9 @@ Then, you can register your dependencies.
  // Register a class
 container.register(TestClass);
 
+// Register a class with a custom activation key
+container.register("Key", TestClass);
+
 // Register a class with a factory function
 // Optionally, you can use the container during your factory function
 container.register(SomeDepWhichNeedsAFactory, () => new SomeDepWhichNeedsAFactory("abc"));

@@ -1,6 +1,6 @@
 {
   "name": "cruet",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "",
   "main": "dist/bundle.js",
   "types": "dist/index.d.ts",
@@ -11,9 +11,8 @@
   "author": "David Whitney",
   "license": "ISC",
   "devDependencies": {
-    "@types/jest": "^27.4.1",
     "typescript": "^4.3.2",
-    "vitest": "^0.16.0"
+    "vitest": "^0.18.0"
   },
   "publishConfig": {
     "access": "public"

@@ -49,9 +49,14 @@ export class Container {
 
         if (!isRegistration(value)) {
             const valueSnapshot = value;
-            value = typeof valueSnapshot === "function" 
-                ? { using: valueSnapshot } 
-                : { using: () => (valueSnapshot) };
+
+            if (isConstructor(valueSnapshot)) {
+                value = { usingConstructor: valueSnapshot };
+            } else {
+                value = typeof valueSnapshot === "function" 
+                    ? { using: valueSnapshot } 
+                    : { using: () => (valueSnapshot) };
+            }
         }
 
         if (!isRegistration(value)) {
@@ -125,3 +130,7 @@ export function isUsingRegistration(value: Types.IRegistration): value is Types.
 }
 
 const keyNotRecognisedErrorFunction = (key: string) => () => { throw new Error(`Registration found for '${key}' but no value was provided`); };
+
+function isConstructor(obj) {
+    return !!obj.prototype && !!obj.prototype.constructor.name;
+}

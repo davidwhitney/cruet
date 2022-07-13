@@ -61,6 +61,13 @@ describe("Container", () => {
             expect(container.get(TestClass)).toBeInstanceOf(TestClass);
         });
 
+        it("should be able to register a class with a different activation key", () => {
+            container.register("Key", TestClass);
+
+            expect(container.registrations.has("Key")).toBe(true);
+            expect(container.get("Key")).toBeInstanceOf(TestClass);
+        });
+
         it("should support providing registrations", () => {
             container.register(SomeDepWhichNeedsAFactory, { using: () => new SomeDepWhichNeedsAFactory("abcd") });
                     

@@ -27,6 +27,10 @@
     "sourceMap": true,
     "declaration": true,
 
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    
+    "types": [
+      "vitest/globals"
+    ]
   }
 }

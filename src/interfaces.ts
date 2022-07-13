@@ -1,6 +1,6 @@
 import { Container } from "./Container";
 
-export type Constructor = { new (...args: any[]) };
+export type Constructor = { new (...args: any[]): any; };
 export type FactoryFunction = ((current?: Container) => any);
 export type ValidRegistrationValue = IRegistration | object;
 
