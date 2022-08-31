@@ -121,8 +121,12 @@ export class Container {
     }
 }
 
-function isRegistration(value: Types.ValidRegistrationValue): value is Types.IRegistration {
+export function isRegistration(value: Types.ValidRegistrationValue): value is Types.IRegistration {
     return ("usingConstructor" in value || "using" in value) ? true : false;
+}
+
+export function isConstructorRegistration(value: Types.IRegistration): value is Types.ConstructorRegistration {
+    return ("usingConstructor" in value) ? true : false;
 }
 
 export function isUsingRegistration(value: Types.IRegistration): value is Types.UsingRegistration {

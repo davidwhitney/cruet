@@ -102,6 +102,16 @@ describe("Container", () => {
                 container.get("foo");
             }).toThrow("Registration found for 'foo' but no value was provided");
         });
+
+        it("should load factory functions when they are constructor dependencies of bound interfaces", () => {
+            container.register("ISomeInterface", SomeConcreteImplementation);
+            container.register("sourcedFromBoundFunction", () => {
+                return "bar";
+            });
+
+            const item = container.get<ISomeInterface>("ISomeInterface");
+            expect(item.sourcedFromBoundFunction).toBe("bar");
+        })
     });
 
     describe("reregister", () => {
@@ -324,4 +334,15 @@ class WithDependencyOne {
 
 class WithDependencyTwo {
     constructor(@Inject("SomeDep") public someDep: SomeDep) { }
+}
+
+interface ISomeInterface {
+    sourcedFromBoundFunction: string;
+}
+
+class SomeConcreteImplementation implements ISomeInterface {
+    constructor(
+        @Inject("sourcedFromBoundFunction") public sourcedFromBoundFunction: string
+    ) {
+    }
 }

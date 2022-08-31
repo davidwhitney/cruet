@@ -1,6 +1,6 @@
 import { IActivationContext, IActivationStrategy, ValidActivationLifecycle } from "../interfaces";
 import { typeConstructionRequirements } from "../Inject";
-import { Container, isUsingRegistration } from "../Container";
+import { Container, isUsingRegistration, isConstructorRegistration } from "../Container";
 
 export class TransientActivationStrategy implements IActivationStrategy {
     public static get shortName(): ValidActivationLifecycle { return "transient"; }
@@ -21,6 +21,12 @@ export class TransientActivationStrategy implements IActivationStrategy {
 
         if (isUsingRegistration(registration)) {
             return registration.using(this.parent);
+        }
+
+        if (isConstructorRegistration(registration)) {
+            // We swap the key here so that IFoo bound to FooImpl
+            // Correctly loads the dependency graph for FooImpl.
+            key = registration.usingConstructor.name;
         }
 
         const metadata = typeConstructionRequirements.requirementsFor(key);
