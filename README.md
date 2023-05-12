@@ -30,7 +30,7 @@ Why cruet? Well, most importantly, it **works anywhere modern JavaScript runs**,
 Install the `cruet` package from `npm`:
 
 ```bash
-npm install @cruet --save-dev
+npm install cruet --save-dev
 ```
 
 Set the `experimentalDecorators` flag to `true` in your `tsconfig.json` file.
