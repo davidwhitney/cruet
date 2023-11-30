@@ -1,6 +1,6 @@
 {
   "name": "cruet",
-  "version": "0.1.17",
+  "version": "0.2.0",
   "description": "",
   "main": "dist/bundle.js",
   "types": "dist/index.d.ts",
@@ -11,14 +11,17 @@
   "author": "David Whitney",
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^4.3.2",
-    "vitest": "^0.18.0"
+    "typescript": "^5.3.2",
+    "vitest": "^0.34.6"
   },
   "publishConfig": {
     "access": "public"
   },
   "keywords": [
-    "injection", "di", "container", "dependency injection"
+    "injection",
+    "di",
+    "container",
+    "dependency injection"
   ],
   "repository": {
     "type": "git",
@@ -28,7 +31,7 @@
     "url": "https://github.com/davidwhitney/cruet/issues"
   },
   "homepage": "https://github.com/davidwhitney/cruet#readme",
-  "wallaby": {    
+  "wallaby": {
     "testFramework": "vitest",
     "env": {
       "params": {
