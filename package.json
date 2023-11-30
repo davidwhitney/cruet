@@ -6,11 +6,12 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest run",
-    "build": "tsc && npx esbuild ./src/index.ts --bundle --platform=node --target=node16 --sourcemap --outfile=./dist/bundle.js"
+    "build": "tsc --moduleResolution bundler && esbuild ./src/index.ts --bundle --platform=node --target=node16 --sourcemap --outfile=./dist/bundle.js"
   },
   "author": "David Whitney",
   "license": "ISC",
   "devDependencies": {
+    "esbuild": "^0.19.8",
     "typescript": "^5.3.2",
     "vitest": "^0.34.6"
   },
